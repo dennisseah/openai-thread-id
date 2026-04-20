@@ -1,0 +1,32 @@
+---
+title: test prompt caching in Azure OpenAI Service
+tests:
+  - test_1: Small prompt with same input
+    expected_cache: false
+    reasoning:
+      "Since prompts are smaller than 1024 tokens, they are not cached. Each
+      request will be processed independently, resulting in no cache hits."
+
+  - test_2: Large prompt with same input
+    expected_cache: true
+    reasoning:
+      "Prompts larger than 1024 tokens are eligible for caching. If the same
+      input is sent multiple times, the first request will be processed and
+      cached, while subsequent requests with the same input will result in cache
+      hits, reducing latency and input token cost."
+
+  - test_3: Large prompt maintaining the same initial 1024 tokens
+    expected_cache: true
+    reasoning:
+      "Even if the total prompt exceeds 1024 tokens, as long as the initial 1024
+      tokens remain unchanged across requests, the prompt can be cached. This
+      means that if the first 1024 tokens are consistent, subsequent requests
+      with the same initial tokens will benefit from caching, regardless of the
+      total prompt length."
+  - test_4: Large prompt different initial 1024 tokens
+    expected_cache: false
+    reasoning:
+      "Since the initial 1024 tokens differ between requests, the prompt cannot
+      be cached. Each request will be treated as unique, resulting in no cache
+      hits. This emphasizes the importance of maintaining consistent initial
+      tokens for caching to be effective."
